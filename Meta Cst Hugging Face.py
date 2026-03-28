@@ -19,7 +19,7 @@ class MetaCassiterite:
             "Random Forest": None,
             "XGBoost": None,
             "TabNet": None,
-            "Stacking": None
+            "Ensemble": None
         }
         self.load_models()
         self.processed_data = None
@@ -41,6 +41,8 @@ class MetaCassiterite:
             return True
         except Exception as e:
             print(f"Error loading models: {str(e)}")
+            print("Hint: If you see sklearn/xgboost version warnings, they are usually non-fatal. "
+                  "If prediction fails, please align runtime versions with the training environment.")
             return False
 
     def apply_log10_transform(self, df):
@@ -284,4 +286,7 @@ with gr.Blocks(title="Meta Cassiterite 1.0", css=custom_css) as demo:
     """)
 
 if __name__ == "__main__":
-    demo.launch()
+    # 在部署环境中显式指定监听地址/端口，避免容器启动后外部无法访问
+    port = int(os.getenv("PORT", "7860"))
+    # 关闭 SSR 实验特性，减少环境兼容性问题；如需开启可设置为 True
+    demo.launch(server_name="0.0.0.0", server_port=port, ssr_mode=False, show_error=True)
